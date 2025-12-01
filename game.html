@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ping Pong Reaction Challenge</title>
+    <link rel="stylesheet" href="mystyles.css">
+    <style>
+        /* 遊戲專屬的樣式 */
+        body {
+            text-align: center;
+            user-select: none; /* 防止點擊時選取文字 */
+        }
+        
+        #game-area {
+            width: 600px;
+            height: 400px;
+            background-color: #2c3e50; /* 深藍色球桌 */
+            border: 5px solid white;
+            margin: 20px auto;
+            position: relative;
+            cursor: crosshair;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        .ball {
+            width: 40px;
+            height: 40px;
+            background-color: #e67e22; /* 橘色乒乓球 */
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+            box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
+            transition: transform 0.1s;
+        }
+
+        .ball:active {
+            transform: scale(0.9);
+        }
+
+        #scoreboard {
+            font-size: 24px;
+            margin: 10px;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #219150;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-container">
+        <a href="scratch.html" class="back-link">← Back to Scratch Page</a>
+    </div>
+
+    <h1>Ping Pong Reaction Challenge</h1>
+    <p>Click the orange balls as fast as you can! (Time Limit: 30s)</p>
+
+    <div id="scoreboard">Score: <span id="score">0</span> | Time: <span id="time">30</span></div>
+    
+    <button id="start-btn" onclick="startGame()">Start Game</button>
+
+    <div id="game-area">
+        </div>
+
+    <script>
+        let score = 0;
+        let timeLeft = 30;
+        let gameInterval;
+        let spawnInterval;
+        let gameArea = document.getElementById("game-area");
+        let scoreDisplay = document.getElementById("score");
+        let timeDisplay = document.getElementById("time");
+        let startBtn = document.getElementById("start-btn");
+
+        function startGame() {
+            // 重置遊戲狀態
+            score = 0;
+            timeLeft = 30;
+            scoreDisplay.innerText = score;
+            timeDisplay.innerText = timeLeft;
+            gameArea.innerHTML = ""; // 清空場地
+            startBtn.disabled = true; // 遊戲中不能再按開始
+            startBtn.style.backgroundColor = "#95a5a6";
+
+            // 開始倒數計時
+            gameInterval = setInterval(() => {
+                timeLeft--;
+                timeDisplay.innerText = timeLeft;
+
+                if (timeLeft <= 0) {
+                    endGame();
+                }
+            }, 1000);
+
+            // 開始生成球
+            spawnBall();
+            spawnInterval = setInterval(spawnBall, 600); // 每0.6秒出一顆球
+        }
+
+        function spawnBall() {
+            if (timeLeft <= 0) return;
+
+            let ball = document.createElement("div");
+            ball.classList.add("ball");
+
+            // 隨機位置計算 (扣除球的大小 40px)
+            let x = Math.random() * (600 - 40);
+            let y = Math.random() * (400 - 40);
+
+            ball.style.left = x + "px";
+            ball.style.top = y + "px";
+
+            // 點擊事件：加分並移除球
+            ball.onclick = function() {
+                score++;
+                scoreDisplay.innerText = score;
+                ball.remove(); // 點到就消失
+            };
+
+            // 2秒後球自動消失 (增加難度)
+            setTimeout(() => {
+                if (ball.parentElement) {
+                    ball.remove();
+                }
+            }, 2000);
+
+            gameArea.appendChild(ball);
+        }
+
+        function endGame() {
+            clearInterval(gameInterval);
+            clearInterval(spawnInterval);
+            alert("Game Over! Your Rating is: " + (score * 50)); // 假裝換算成桌球積分
+            startBtn.disabled = false;
+            startBtn.style.backgroundColor = "#27ae60";
+            startBtn.innerText = "Play Again";
+        }
+    </script>
+
+</body>
+</html>
